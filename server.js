@@ -87,6 +87,20 @@ const Users = sequelize.define("users", {
   }
 });
 
+// Модель: GameConfig
+const GameConfig = sequelize.define("game_config", {
+  config_id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false
+  },
+  event_chance: {
+    type: Sequelize.DECIMAL,
+    allowNull: false
+  }
+});
+
 // МОДЕЛЬ: Rooms
 const Rooms = sequelize.define("rooms", {
   room_id: {
@@ -286,10 +300,88 @@ app.post("/api/login", (req, res) => {
   }
 });
 
+app.get("/api/admin/globalconfig", async (req, res) => {
+  // await jwt.verify(
+  //   req.headers.authorization,
+  //   JWTCONFIG.SECRET,
+  //   async (err, decoded) => {
+  //     if (err) {
+  //       res.status(401).send({
+  //         status: 401,
+  //         message: "Вы не авторизованы!"
+  //       });
+  //     } else {
+  let lastConfig = await GameConfig.findOne({
+    limit: 1,
+    order: [["createdAt", "DESC"]]
+  });
+  let result = await GameConfig.create({
+    event_chance: req.body.event_chance || lastConfig.event_chance
+  });
+  res.send({ config: result });
+  // }
+  // }
+  // );
+});
 
-// Список всех отзывов
-app.get("/api/reviewslist", async (req, res) => {
+app.post("/api/admin/globalconfig", async (req, res) => {
+  // await jwt.verify(
+  //   req.headers.authorization,
+  //   JWTCONFIG.SECRET,
+  //   async (err, decoded) => {
+  //     if (err) {
+  //       res.status(401).send({
+  //         status: 401,
+  //         message: "Вы не авторизованы!"
+  //       });
+  //     } else {
+  let lastConfig = await GameConfig.findOne({
+    limit: 1,
+    order: [["createdAt", "DESC"]]
+  });
+  let result = await GameConfig.create({
+    event_chance: req.body.event_chance || lastConfig.event_chance
+  });
+  res.send(result);
+  //     }
+  //   }
+  // );
+});
+
+// Удаление записи о пользователе
+app.delete("/api/admin/users/id/:id", async (req, res) => {
   try {
+    // await jwt.verify(
+    //   req.headers.authorization,
+    //   JWTCONFIG.SECRET,
+    //   async (err, decoded) => {
+    //     if (err) {
+    //       res.status(401).send({
+    //         status: 401,
+    //         message: "Вы не авторизованы!"
+    //       });
+    //     } else {
+    await Users.destroy({
+      where: {
+        user_id: req.params.id
+      }
+    });
+    res.status(200).send({ message: "ok" });
+    //     }
+    //   }
+    // );
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: 500,
+      message: "Ошибка сервера!"
+    });
+  };
+});
+
+  // Список всех отзывов
+app.get("/api/reviewslist", async (req, res) => {
+try {
     // await jwt.verify(
     //   req.headers.authorization,
     //   JWTCONFIG.SECRET,
