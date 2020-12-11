@@ -379,9 +379,9 @@ app.delete("/api/admin/users/id/:id", async (req, res) => {
   };
 });
 
-  // Список всех отзывов
+// Список всех отзывов
 app.get("/api/reviewslist", async (req, res) => {
-try {
+  try {
     // await jwt.verify(
     //   req.headers.authorization,
     //   JWTCONFIG.SECRET,
