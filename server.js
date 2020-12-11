@@ -141,6 +141,43 @@ const Rooms = sequelize.define("rooms", {
   }
 });
 
+// Модель: Reviews
+const Reviews = sequelize.define("reviews", {
+  review_id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    allowNull: false
+  },
+  author_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  room_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  rating: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  comment: {
+    type: Sequelize.TEXT,
+    allowNull: false
+  }
+});
+
+Users.hasMany(Reviews, {
+  onDelete: "cascade",
+  foreignKey: "author_id",
+  as: "reviews"
+});
+Reviews.belongsTo(Users, {
+  foreignKey: "author_id",
+  as: "user"
+});
+
+
 // Синхронизация таблиц с БД
 sequelize
   // .sync({
@@ -246,5 +283,110 @@ app.post("/api/login", (req, res) => {
         }
       })
       .catch(err => console.log(err));
+  }
+});
+
+
+// Список всех отзывов
+app.get("/api/reviewslist", async (req, res) => {
+  try {
+    // await jwt.verify(
+    //   req.headers.authorization,
+    //   JWTCONFIG.SECRET,
+    //   async (err, decoded) => {
+    //     if (err) {
+    //       res.status(401).send({
+    //         status: 401,
+    //         message: "Вы не авторизованы!"
+    //       });
+    //     } else {
+    let result = await Reviews.findAll({
+      order: [["updatedAt", "DESC"]],
+      include: [
+        {
+          model: Users,
+          as: "user"
+        }
+      ]
+    });
+    res.send({ reviews: result });
+    // }
+    //   }
+    // );
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      status: 500,
+      message: "Ошибка сервера!"
+    });
+  }
+});
+
+// Получение отзыва по id
+app.get("/api/reviews/:id", async (req, res) => {
+  try {
+    let result = await Reviews.findOne({
+      where: {
+        review_id: req.params.id
+      }
+    });
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      status: 500,
+      message: "Ошибка сервера!"
+    });
+  }
+});
+
+// Добавить отзыв
+app.post("/api/addreview", async (req, res) => {
+  try {
+    let result = await Reviews.create({
+      author_id: req.body.author_id,
+      room_id: req.body.room_id,
+      rating: req.body.rating,
+      comment: req.body.comment
+    });
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      status: 500,
+      message: "Ошибка сервера!"
+    });
+  }
+});
+
+// Удалить отзыв
+app.delete("/api/reviews/:id", async (req, res) => {
+  try {
+  //   await jwt.verify(
+  //     req.headers.authorization,
+  //     JWTCONFIG.SECRET,
+  //     async (err, decoded) => {
+  //       if (err) {
+  //         res.status(401).send({
+  //           status: 401,
+  //           message: "Вы не авторизованы!"
+  //         });
+  //       } else {
+          let result = await Reviews.destroy({
+            where: {
+              review_id: req.params.id
+            }
+          });
+          console.log(result);
+          res.sendStatus(200);
+    //     }
+    //   }
+    // );
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      status: 500,
+      message: "Ошибка сервера!"
+    });
   }
 });
