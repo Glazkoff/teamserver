@@ -21,7 +21,11 @@ ERD-диаграмма структуры базы данных находитс
 
 Дизайн макетов экранов административной панели сервиса находится [по ссылке](https://www.figma.com/file/lXu3NJ0uUePkZrMjr7XfyQ/%D0%9C%D0%BE%D0%B1%D0%B8%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5-%D0%BF%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5?node-id=0%3A1).
 
+Документация к API в Postman находится [по ссылке](https://documenter.getpostman.com/view/13839056/TVmV7aQh).
+
 Презентация-демонстрация проделанной работы и этапов разработки находится [по ссылке](https://docs.google.com/presentation/d/1i0vlyeyup1YPJAhI40mMQ9fRyuGNBinChaXJAfSOAcs/edit?usp=sharing).
+
+Видео-пример использования мобильного приложения находится [по ссылке](https://drive.google.com/file/d/1W8ho5JZt05joLmt5yg62AdO2I4-xgaab/view?usp=sharing).
 
 
 ## Разработка
