@@ -181,6 +181,7 @@ const Reviews = sequelize.define("reviews", {
   }
 });
 
+// Внешние ключи
 Users.hasMany(Reviews, {
   onDelete: "cascade",
   foreignKey: "author_id",
@@ -191,54 +192,15 @@ Reviews.belongsTo(Users, {
   as: "user"
 });
 
-
 // Синхронизация таблиц с БД
 sequelize
-  // .sync({
-  //   force: true
-  // })
-  .sync({
-    alter: true
-  })
-  // .sync()
+  .sync()
   .then(result => {
-    // Users.create({
-    //   login: "login",
-    //   password: bcrypt.hashSync("password", salt),
-    //   name: "Никита"
-    // })
-    //   .then(res => {
-    //     console.log(res.dataValues);
-    //   })
-    //   .catch(err => console.log(err));
     trySetCards();
     trySetEvents();
     console.log("Подключено к БД");
   })
   .catch(err => console.log("Ошибка подключения к БД", err));
-
-app.get("/api/admin/users/list/:offset", async (req, res) => {
-  await jwt.verify(
-    req.headers.authorization,
-    JWTCONFIG.SECRET,
-    async (err, decoded) => {
-      if (err) {
-        res.status(401).send({
-          status: 401,
-          message: "Вы не авторизованы!"
-        });
-      } else {
-        let result = await Users.findAll({
-          attributes: ["user_id", "login", "name", "createdAt"],
-          order: [["updatedAt", "DESC"]],
-          offset: 10 * (req.params.offset - 1),
-          limit: 10
-        });
-        res.send(result);
-      }
-    }
-  );
-});
 
 // Авторизация
 app.post("/api/login", (req, res) => {
@@ -300,17 +262,8 @@ app.post("/api/login", (req, res) => {
   }
 });
 
+// Получение глобальной конфигурации
 app.get("/api/admin/globalconfig", async (req, res) => {
-  // await jwt.verify(
-  //   req.headers.authorization,
-  //   JWTCONFIG.SECRET,
-  //   async (err, decoded) => {
-  //     if (err) {
-  //       res.status(401).send({
-  //         status: 401,
-  //         message: "Вы не авторизованы!"
-  //       });
-  //     } else {
   let lastConfig = await GameConfig.findOne({
     limit: 1,
     order: [["createdAt", "DESC"]]
@@ -319,22 +272,10 @@ app.get("/api/admin/globalconfig", async (req, res) => {
     event_chance: req.body.event_chance || lastConfig.event_chance
   });
   res.send({ config: result });
-  // }
-  // }
-  // );
 });
 
+// Обновление глобальной конфигурации
 app.post("/api/admin/globalconfig", async (req, res) => {
-  // await jwt.verify(
-  //   req.headers.authorization,
-  //   JWTCONFIG.SECRET,
-  //   async (err, decoded) => {
-  //     if (err) {
-  //       res.status(401).send({
-  //         status: 401,
-  //         message: "Вы не авторизованы!"
-  //       });
-  //     } else {
   let lastConfig = await GameConfig.findOne({
     limit: 1,
     order: [["createdAt", "DESC"]]
@@ -343,55 +284,11 @@ app.post("/api/admin/globalconfig", async (req, res) => {
     event_chance: req.body.event_chance || lastConfig.event_chance
   });
   res.send(result);
-  //     }
-  //   }
-  // );
-});
-
-// Удаление записи о пользователе
-app.delete("/api/admin/users/id/:id", async (req, res) => {
-  try {
-    // await jwt.verify(
-    //   req.headers.authorization,
-    //   JWTCONFIG.SECRET,
-    //   async (err, decoded) => {
-    //     if (err) {
-    //       res.status(401).send({
-    //         status: 401,
-    //         message: "Вы не авторизованы!"
-    //       });
-    //     } else {
-    await Users.destroy({
-      where: {
-        user_id: req.params.id
-      }
-    });
-    res.status(200).send({ message: "ok" });
-    //     }
-    //   }
-    // );
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      status: 500,
-      message: "Ошибка сервера!"
-    });
-  };
 });
 
 // Список всех отзывов
 app.get("/api/reviewslist", async (req, res) => {
   try {
-    // await jwt.verify(
-    //   req.headers.authorization,
-    //   JWTCONFIG.SECRET,
-    //   async (err, decoded) => {
-    //     if (err) {
-    //       res.status(401).send({
-    //         status: 401,
-    //         message: "Вы не авторизованы!"
-    //       });
-    //     } else {
     let result = await Reviews.findAll({
       order: [["updatedAt", "DESC"]],
       include: [
@@ -402,9 +299,6 @@ app.get("/api/reviewslist", async (req, res) => {
       ]
     });
     res.send({ reviews: result });
-    // }
-    //   }
-    // );
   } catch (err) {
     console.log(err);
     res.status(500).send({
@@ -454,26 +348,12 @@ app.post("/api/addreview", async (req, res) => {
 // Удалить отзыв
 app.delete("/api/reviews/:id", async (req, res) => {
   try {
-  //   await jwt.verify(
-  //     req.headers.authorization,
-  //     JWTCONFIG.SECRET,
-  //     async (err, decoded) => {
-  //       if (err) {
-  //         res.status(401).send({
-  //           status: 401,
-  //           message: "Вы не авторизованы!"
-  //         });
-  //       } else {
-          let result = await Reviews.destroy({
-            where: {
-              review_id: req.params.id
-            }
-          });
-          console.log(result);
-          res.sendStatus(200);
-    //     }
-    //   }
-    // );
+    let result = await Reviews.destroy({
+      where: {
+        review_id: req.params.id
+      }
+    });
+    res.sendStatus(200);
   } catch (err) {
     console.log(err);
     res.status(500).send({
@@ -481,4 +361,13 @@ app.delete("/api/reviews/:id", async (req, res) => {
       message: "Ошибка сервера!"
     });
   }
+});
+
+// Получение списка всех пользователей
+app.get("/api/admin/users/list", async (req, res) => {
+  let result = await Users.findAll({
+    attributes: ["user_id", "login", "name", "createdAt"],
+    order: [["updatedAt", "DESC"]]
+  });
+  res.send({ users: result });
 });
