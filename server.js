@@ -196,8 +196,6 @@ Reviews.belongsTo(Users, {
 sequelize
   .sync()
   .then(result => {
-    trySetCards();
-    trySetEvents();
     console.log("Подключено к БД");
   })
   .catch(err => console.log("Ошибка подключения к БД", err));
